@@ -6,12 +6,14 @@ pipeline {
     }
 
     environment {
-        APP_NAME       = 'tarea-final'
-        VERSION_BASE   = '3.0'
-        DOCKERHUB_USER = 'cverdiaz'
-        IMAGE_NAME     = "${DOCKERHUB_USER}/${APP_NAME}"
-        NAMESPACE      = 'ns-carlos-vera'
-        DEPLOYMENT     = 'app-carlos-vera'
+        APP_NAME        = 'tarea-final'
+        VERSION_BASE    = '3.0'
+        DOCKERHUB_USER  = 'cverdiaz'
+        GITHUB_USER     = 'cverdiaz'
+        IMAGE_NAME      = "${DOCKERHUB_USER}/${APP_NAME}"
+        GHCR_IMAGE_NAME = "ghcr.io/${GITHUB_USER}/${APP_NAME}"
+        NAMESPACE       = 'ns-carlos-vera'
+        DEPLOYMENT      = 'app-carlos-vera'
     }
 
     stages {
@@ -57,7 +59,7 @@ pipeline {
             }
         }
 
-        stage('push') { // BuildKit construye la imagen Docker y publica ambos tags en Docker Hub: el específico de versión estable el tag personalizado carlos-vera y el tag de versión 3.0.0
+        stage('push') {
             steps {
                 container('buildkit') {
                     withCredentials([
@@ -65,19 +67,32 @@ pipeline {
                             credentialsId: 'dockerhub-credentials',
                             usernameVariable: 'DOCKERHUB_USERNAME',
                             passwordVariable: 'DOCKERHUB_TOKEN'
+                        ),
+                        usernamePassword(
+                            credentialsId: 'ghcr-credentials',
+                            usernameVariable: 'GHCR_USERNAME',
+                            passwordVariable: 'GHCR_TOKEN'
                         )
                     ]) {
                         sh '''
-                            echo "===== CONFIGURANDO AUTENTICACIÓN DOCKER HUB ====="
-                            mkdir -p "$HOME/.docker"
+                            echo "===== CONFIGURANDO AUTENTICACIÓN DE REGISTROS ====="
 
-                            AUTH="$(printf '%s:%s' "$DOCKERHUB_USERNAME" "$DOCKERHUB_TOKEN" | base64 | tr -d '\\n')"
+                            set +x
+
+                            mkdir -p "$HOME/.docker"
+                            trap 'rm -f "$HOME/.docker/config.json"' EXIT
+
+                            DOCKERHUB_AUTH="$(printf '%s:%s' "$DOCKERHUB_USERNAME" "$DOCKERHUB_TOKEN" | base64 | tr -d '\\n')"
+                            GHCR_AUTH="$(printf '%s:%s' "$GHCR_USERNAME" "$GHCR_TOKEN" | base64 | tr -d '\\n')"
 
                             cat > "$HOME/.docker/config.json" <<JSON
 {
   "auths": {
     "https://index.docker.io/v1/": {
-      "auth": "$AUTH"
+      "auth": "$DOCKERHUB_AUTH"
+    },
+    "ghcr.io": {
+      "auth": "$GHCR_AUTH"
     }
   }
 }
@@ -85,15 +100,17 @@ JSON
 
                             VERSION_TAG="${VERSION_BASE}.${BUILD_NUMBER}"
 
+                            set -x
+
                             echo "===== VERSIÓN GENERADA: ${VERSION_TAG} ====="
-                            echo "===== CONSTRUYENDO Y PUBLICANDO IMAGEN ====="
+                            echo "===== CONSTRUYENDO Y PUBLICANDO IMAGEN EN DOCKER HUB Y GHCR ====="
+
                             buildctl-daemonless.sh build \
                               --frontend dockerfile.v0 \
                               --local context=. \
                               --local dockerfile=. \
-                              --output type=image,name=docker.io/${IMAGE_NAME}:carlos-vera,name=docker.io/${IMAGE_NAME}:${VERSION_TAG},push=true
+                              --output type=image,name=docker.io/${IMAGE_NAME}:carlos-vera,name=docker.io/${IMAGE_NAME}:${VERSION_TAG},name=${GHCR_IMAGE_NAME}:carlos-vera,name=${GHCR_IMAGE_NAME}:${VERSION_TAG},push=true
 
-                            rm -f "$HOME/.docker/config.json"
                         '''
                     }
                 }

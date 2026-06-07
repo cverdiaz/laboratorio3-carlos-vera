@@ -48,6 +48,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+LABEL org.opencontainers.image.source="https://github.com/cverdiaz/laboratorio3-carlos-vera"
+
 COPY --from=build /app/package.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
