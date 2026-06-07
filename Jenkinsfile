@@ -103,13 +103,18 @@ JSON
                             set -x
 
                             echo "===== VERSIÓN GENERADA: ${VERSION_TAG} ====="
+                            IMAGE_OUTPUT='type=image,"name='"docker.io/${IMAGE_NAME}:carlos-vera,docker.io/${IMAGE_NAME}:${VERSION_TAG},${GHCR_IMAGE_NAME}:carlos-vera,${GHCR_IMAGE_NAME}:${VERSION_TAG}"'",push=true'
+
+                            echo "===== DESTINOS DE PUBLICACIÓN ====="
+                            printf '%s\n' "$IMAGE_OUTPUT"
+
                             echo "===== CONSTRUYENDO Y PUBLICANDO IMAGEN EN DOCKER HUB Y GHCR ====="
 
                             buildctl-daemonless.sh build \
                               --frontend dockerfile.v0 \
                               --local context=. \
                               --local dockerfile=. \
-                              --output "type=image,\"name=docker.io/${IMAGE_NAME}:carlos-vera,docker.io/${IMAGE_NAME}:${VERSION_TAG},${GHCR_IMAGE_NAME}:carlos-vera,${GHCR_IMAGE_NAME}:${VERSION_TAG}\",push=true"
+                              --output "$IMAGE_OUTPUT"
 
                         '''
                     }
