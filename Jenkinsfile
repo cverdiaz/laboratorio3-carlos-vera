@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         APP_NAME       = 'tarea-final'
-        APP_VERSION    = '3.0.0'
+        VERSION_BASE   = '3.0'
         DOCKERHUB_USER = 'cverdiaz'
         IMAGE_NAME     = "${DOCKERHUB_USER}/${APP_NAME}"
         NAMESPACE      = 'ns-carlos-vera'
@@ -83,12 +83,15 @@ pipeline {
 }
 JSON
 
+                            VERSION_TAG="${VERSION_BASE}.${BUILD_NUMBER}"
+
+                            echo "===== VERSIÓN GENERADA: ${VERSION_TAG} ====="
                             echo "===== CONSTRUYENDO Y PUBLICANDO IMAGEN ====="
                             buildctl-daemonless.sh build \
                               --frontend dockerfile.v0 \
                               --local context=. \
                               --local dockerfile=. \
-                              --output type=image,name=docker.io/${IMAGE_NAME}:carlos-vera,name=docker.io/${IMAGE_NAME}:${APP_VERSION},push=true
+                              --output type=image,name=docker.io/${IMAGE_NAME}:carlos-vera,name=docker.io/${IMAGE_NAME}:${VERSION_TAG},push=true
 
                             rm -f "$HOME/.docker/config.json"
                         '''
