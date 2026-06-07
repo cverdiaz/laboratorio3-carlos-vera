@@ -8,15 +8,15 @@ kind: Pod
 metadata:
   labels:
     app: jenkins-lab3-agent
+
 spec:
+  # Los contenedores comparten el workspace con UID/GID 1000.
   securityContext:
     runAsUser: 1000
     runAsGroup: 1000
     fsGroup: 1000
 
-  # Esta cuenta de servicio se creará en la siguiente tarea.
   serviceAccountName: jenkins-lab3-agent
-
   restartPolicy: Never
 
   containers:
@@ -33,32 +33,26 @@ spec:
       workingDir: /home/jenkins/agent
 
     # --------------------------------------------------------
-    # BUILDKIT ROOTLESS
-    # Construye y publica la imagen sin utilizar Docker-in-Docker
-    # ni montar /var/run/docker.sock desde el nodo.
+    # BUILDKIT
+    # Construye y publica la imagen Docker.
+    # Se ejecuta como root y privilegiado únicamente dentro
+    # del agente efímero del laboratorio local.
     # --------------------------------------------------------
     - name: buildkit
-      image: moby/buildkit:v0.28.0-rootless
+      image: moby/buildkit:v0.28.0
       imagePullPolicy: IfNotPresent
       command:
         - cat
       tty: true
       workingDir: /home/jenkins/agent
-      env:
-        - name: BUILDKITD_FLAGS
-          value: "--oci-worker-no-process-sandbox"
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        allowPrivilegeEscalation: false
-        seccompProfile:
-          type: Unconfined
-        appArmorProfile:
-          type: Unconfined
+        privileged: true
+        runAsUser: 0
+        runAsGroup: 0
 
     # --------------------------------------------------------
     # KUBECTL
-    # Aplica los manifiestos y comprueba el despliegue.
+    # Aplica los manifiestos y verifica el despliegue.
     # --------------------------------------------------------
     - name: kubectl
       image: bitnami/kubectl:latest
