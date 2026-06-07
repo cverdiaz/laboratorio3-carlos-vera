@@ -1,0 +1,18 @@
+============================================================
+LABORATORIO 3 - INFORMACIÓN DEL CLÚSTER
+Fecha: 2026-06-07T18:12:42-03:00
+============================================================
+
+===== CLUSTER INFO =====
+Kubernetes control plane is running at https://127.0.0.1:32771
+CoreDNS is running at https://127.0.0.1:32771/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+===== NODOS =====
+NAME       STATUS   ROLES           AGE   VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION                      CONTAINER-RUNTIME
+minikube   Ready    control-plane   12d   v1.35.1   192.168.49.2   <none>        Debian GNU/Linux 12 (bookworm)   6.6.114.1-microsoft-standard-WSL2   docker://29.2.1
+
+===== NAMESPACE DEL LABORATORIO =====
+NAME             STATUS   AGE
+ns-carlos-vera   Active   27h

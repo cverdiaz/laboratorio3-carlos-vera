@@ -1,0 +1,21 @@
+============================================================
+LABORATORIO 3 - CONFIGMAP
+Fecha: 2026-06-07T18:13:32-03:00
+============================================================
+
+Name:         config-carlos-vera
+Namespace:    ns-carlos-vera
+Labels:       <none>
+Annotations:  <none>
+
+Data
+====
+AMBIENTE:
+----
+kubernetes-local
+
+
+BinaryData
+====
+
+Events:  <none>
