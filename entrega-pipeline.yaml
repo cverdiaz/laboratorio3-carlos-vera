@@ -1,0 +1,84 @@
+---
+# ============================================================
+# CONFIGMAP
+# Almacena una configuración no sensible de la aplicación.
+# ============================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-carlos-vera
+  namespace: ns-carlos-vera
+data:
+  AMBIENTE: "kubernetes-local"
+
+---
+# ============================================================
+# SECRET
+# Almacena un valor sensible de prueba.
+# No utilizar claves reales en este laboratorio.
+# ============================================================
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret-carlos-vera
+  namespace: ns-carlos-vera
+type: Opaque
+stringData:
+  API_KEY: "api-key-laboratorio3-carlos-vera"
+
+---
+# ============================================================
+# DEPLOYMENT
+# Ejecuta dos réplicas de la aplicación publicada en Docker Hub.
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-carlos-vera
+  namespace: ns-carlos-vera
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app-carlos-vera
+  template:
+    metadata:
+      labels:
+        app: app-carlos-vera
+    spec:
+      containers:
+        - name: app-carlos-vera
+          image: cverdiaz/tarea-final:carlos-vera
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: AMBIENTE
+              valueFrom:
+                configMapKeyRef:
+                  name: config-carlos-vera
+                  key: AMBIENTE
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secret-carlos-vera
+                  key: API_KEY
+
+---
+# ============================================================
+# SERVICE
+# Expone internamente la aplicación en el puerto 80 y dirige el tráfico al puerto 3000 de los contenedores.
+# ============================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-carlos-vera
+  namespace: ns-carlos-vera
+spec:
+  selector:
+    app: app-carlos-vera
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP

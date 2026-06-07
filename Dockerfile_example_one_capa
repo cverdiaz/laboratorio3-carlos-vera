@@ -1,0 +1,25 @@
+# Alpine permite crear una imagen más liviana.
+FROM node:24-alpine
+
+# Carpeta de trabajo dentro del contenedor.
+WORKDIR /app
+
+# Copiamos primero package.json para instalar las dependencias.
+# Esto permite aprovechar la caché de Docker si el código cambia,
+# pero las dependencias se mantienen iguales.
+COPY package.json ./
+
+# Instalamos las dependencias necesarias para compilar y ejecutar la aplicación.
+RUN npm install
+
+# Copiamos el código fuente y los archivos de configuración del proyecto.
+COPY . .
+
+# Compilamos la aplicación NestJS y generamos la carpeta dist.
+RUN npm run build
+
+# Documentamos que la aplicación escucha internamente en el puerto 3000.
+EXPOSE 3000
+
+# Iniciamos la versión compilada de la aplicación.
+CMD ["node", "dist/main.js"]

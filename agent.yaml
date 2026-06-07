@@ -9,6 +9,11 @@ metadata:
   labels:
     app: jenkins-lab3-agent
 spec:
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+
   # Esta cuenta de servicio se creará en la siguiente tarea.
   serviceAccountName: jenkins-lab3-agent
 

@@ -20,10 +20,10 @@ pipeline {
                 container('node') {
                     sh '''
                         echo "===== INSTALANDO PNPM ====="
-                        npm install --global pnpm@11.0.9
+                        npx --yes pnpm@11.0.9 --version
 
                         echo "===== INSTALANDO DEPENDENCIAS ====="
-                        pnpm install --frozen-lockfile
+                        npx --yes pnpm@11.0.9 install --frozen-lockfile
                     '''
                 }
             }
@@ -34,10 +34,10 @@ pipeline {
                 container('node') {
                     sh '''
                         echo "===== PRUEBAS UNITARIAS ====="
-                        pnpm run test
+                        npx --yes pnpm@11.0.9 run test
 
                         echo "===== PRUEBAS END-TO-END ====="
-                        pnpm run test:e2e
+                        npx --yes pnpm@11.0.9 run test:e2e
                     '''
                 }
             }
@@ -48,7 +48,7 @@ pipeline {
                 container('node') {
                     sh '''
                         echo "===== COMPILANDO APLICACIÓN NESTJS ====="
-                        pnpm run build
+                        npx --yes pnpm@11.0.9 run build
 
                         echo "===== VERIFICANDO CARPETA DIST ====="
                         ls -la dist
@@ -102,7 +102,7 @@ JSON
                 container('kubectl') {
                     sh '''
                         echo "===== APLICANDO MANIFIESTOS ====="
-                        kubectl apply -f entrega.yaml
+                        kubectl apply -f entrega-pipeline.yaml
 
                         echo "===== FORZANDO ACTUALIZACIÓN DEL DEPLOYMENT ====="
                         kubectl rollout restart deployment/${DEPLOYMENT} -n ${NAMESPACE}
