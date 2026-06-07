@@ -1,0 +1,64 @@
+# ============================================================
+# AGENTE KUBERNETES TEMPORAL PARA JENKINS
+# Jenkins creará un pod basado en esta plantilla al iniciar
+# el pipeline y lo eliminará cuando termine la ejecución.
+# ============================================================
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: jenkins-lab3-agent
+spec:
+  # Esta cuenta de servicio se creará en la siguiente tarea.
+  serviceAccountName: jenkins-lab3-agent
+
+  restartPolicy: Never
+
+  containers:
+    # --------------------------------------------------------
+    # NODE
+    # Instala dependencias, ejecuta pruebas y compila NestJS.
+    # --------------------------------------------------------
+    - name: node
+      image: node:24-alpine
+      imagePullPolicy: IfNotPresent
+      command:
+        - cat
+      tty: true
+      workingDir: /home/jenkins/agent
+
+    # --------------------------------------------------------
+    # BUILDKIT ROOTLESS
+    # Construye y publica la imagen sin utilizar Docker-in-Docker
+    # ni montar /var/run/docker.sock desde el nodo.
+    # --------------------------------------------------------
+    - name: buildkit
+      image: moby/buildkit:v0.28.0-rootless
+      imagePullPolicy: IfNotPresent
+      command:
+        - cat
+      tty: true
+      workingDir: /home/jenkins/agent
+      env:
+        - name: BUILDKITD_FLAGS
+          value: "--oci-worker-no-process-sandbox"
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        allowPrivilegeEscalation: false
+        seccompProfile:
+          type: Unconfined
+        appArmorProfile:
+          type: Unconfined
+
+    # --------------------------------------------------------
+    # KUBECTL
+    # Aplica los manifiestos y comprueba el despliegue.
+    # --------------------------------------------------------
+    - name: kubectl
+      image: bitnami/kubectl:latest
+      imagePullPolicy: IfNotPresent
+      command:
+        - cat
+      tty: true
+      workingDir: /home/jenkins/agent

@@ -1,0 +1,32 @@
+# Dependencias instaladas localmente
+node_modules
+
+# Archivos generados por compilación
+dist
+coverage
+
+# Repositorio Git
+.git
+.gitignore
+
+# Variables de entorno y secretos locales
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de editores
+.vscode
+.idea
+
+# Evidencias y archivos comprimidos de entrega
+evidencias
+*.zip

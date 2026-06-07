@@ -1,0 +1,74 @@
+# ============================================================
+# SERVICE ACCOUNT
+# Será utilizada por los pods temporales creados por Jenkins.
+# Se crea dentro del namespace jenkins porque allí se ejecutarán
+# los agentes dinámicos.
+# ============================================================
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins-lab3-agent
+  namespace: jenkins
+
+---
+# ============================================================
+# ROLE
+# Entrega permisos limitados solamente sobre los recursos
+# necesarios para desplegar la aplicación.
+# ============================================================
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: jenkins-lab3-deployer
+  namespace: ns-carlos-vera
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - secrets
+      - services
+      - pods
+      - pods/log
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+      - replicasets
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+
+---
+# ============================================================
+# ROLE BINDING
+# Vincula la cuenta creada en el namespace jenkins con el Role
+# limitado al namespace ns-carlos-vera.
+# ============================================================
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jenkins-lab3-deployer
+  namespace: ns-carlos-vera
+subjects:
+  - kind: ServiceAccount
+    name: jenkins-lab3-agent
+    namespace: jenkins
+roleRef:
+  kind: Role
+  name: jenkins-lab3-deployer
+  apiGroup: rbac.authorization.k8s.io
