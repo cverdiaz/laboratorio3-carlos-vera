@@ -88,7 +88,7 @@ JSON
                               --frontend dockerfile.v0 \
                               --local context=. \
                               --local dockerfile=. \
-                              --output "type=image,\"name=docker.io/${IMAGE_NAME}:carlos-vera,docker.io/${IMAGE_NAME}:${APP_VERSION}\",push=true"
+                              --output type=image,name=docker.io/${IMAGE_NAME}:carlos-vera,name=docker.io/${IMAGE_NAME}:${APP_VERSION},push=true
 
                             rm -f "$HOME/.docker/config.json"
                         '''
