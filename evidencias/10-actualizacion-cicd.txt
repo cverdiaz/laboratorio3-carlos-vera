@@ -1,0 +1,23 @@
+============================================================
+LABORATORIO 3 - ACTUALIZACIÓN AUTOMÁTICA MEDIANTE CI/CD
+Fecha: 2026-06-07T18:57:59-03:00
+============================================================
+
+===== PODS POSTERIORES AL DESPLIEGUE AUTOMÁTICO =====
+NAME                               READY   STATUS    RESTARTS   AGE     IP             NODE       NOMINATED NODE   READINESS GATES
+app-carlos-vera-75b69d48c4-lg75t   1/1     Running   0          4m1s    10.244.0.165   minikube   <none>           <none>
+app-carlos-vera-75b69d48c4-mk75b   1/1     Running   0          4m11s   10.244.0.164   minikube   <none>           <none>
+
+===== DEPLOYMENT POSTERIOR AL DESPLIEGUE =====
+NAME              READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS        IMAGES                             SELECTOR
+app-carlos-vera   2/2     2            2           28h   app-carlos-vera   cverdiaz/tarea-final:carlos-vera   app=app-carlos-vera
+
+===== REPLICASETS =====
+NAME                         DESIRED   CURRENT   READY   AGE
+app-carlos-vera-5567fd9d6c   0         0         0       67m
+app-carlos-vera-55f8fc5b58   0         0         0       111m
+app-carlos-vera-5687ffc4bc   0         0         0       139m
+app-carlos-vera-6c4ffc6b5b   0         0         0       28h
+app-carlos-vera-74677f9897   0         0         0       48m
+app-carlos-vera-75b69d48c4   2         2         2       4m12s
+app-carlos-vera-7684ddcdc9   0         0         0       112m

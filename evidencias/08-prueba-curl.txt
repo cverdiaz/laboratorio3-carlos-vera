@@ -1,22 +1,3 @@
- echo "============================================================"
-  echo "LABORATORIO 3 - PRUEBA DE ACCESO MEDIANTE PORT-FORWARD"
-  echo "Fecha: $(date -Iseconds)"
-  echo "============================================================"
-
-  echo ""
-  echo "===== ENDPOINT PRINCIPAL ====="
-  echo "Comando: curl http://localhost:8080/"
-  curl -sS http://localhost:8080/
-  echo ""
-
-  echo ""
-  echo "===== ENDPOINT /lab ====="
-  echo "Comando: curl http://localhost:8080/lab"
-  curl -sS http://localhost:8080/lab
-  echo ""
-
-} | tee evidencias/08-prueba-curl.txt
-tee: evidencias/08-prueba-curl.txt: No such file or directory
 ============================================================
 LABORATORIO 3 - PRUEBA DE ACCESO MEDIANTE PORT-FORWARD
 Fecha: 2026-06-07T18:20:38-03:00

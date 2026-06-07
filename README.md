@@ -1,98 +1,411 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Laboratorio 3 — Pipeline CI/CD con Docker, Kubernetes y Jenkins
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Autor
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+**Carlos Vera**
 
-## Description
+## Descripción
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Este proyecto implementa una aplicación sencilla desarrollada con NestJS y automatiza su ciclo de integración y despliegue continuo mediante Docker, Kubernetes, Minikube y Jenkins.
 
-## Project setup
+El pipeline realiza las siguientes acciones:
 
-```bash
-$ pnpm install
+1. Instala las dependencias del proyecto.
+2. Ejecuta pruebas unitarias y end-to-end.
+3. Compila la aplicación NestJS.
+4. Construye una imagen Docker multietapa.
+5. Publica la imagen en Docker Hub y GitHub Container Registry.
+6. Despliega la aplicación en Kubernetes.
+7. Verifica que el Deployment finalice correctamente.
+
+La aplicación expone dos endpoints:
+
+| Endpoint | Descripción                                                       |
+| -------- | ----------------------------------------------------------------- |
+| `/`      | Mensaje principal de la aplicación                                |
+| `/lab`   | Variables de configuración inyectadas mediante ConfigMap y Secret |
+
+---
+
+## Requisitos previos
+
+Para ejecutar el laboratorio se requiere:
+
+* WSL2 con Ubuntu.
+* Docker Engine instalado dentro de WSL.
+* Minikube.
+* kubectl.
+* Node.js 24.
+* npm.
+* Git.
+* Acceso a Docker Hub.
+* Acceso a GitHub Container Registry.
+* Jenkins instalado dentro del clúster Kubernetes mediante Helm.
+* Plugin Kubernetes configurado en Jenkins.
+
+---
+
+## Estructura principal del proyecto
+
+```text
+lab3/
+├── .dockerignore
+├── Dockerfile
+├── Jenkinsfile
+├── agent.yaml
+├── entrega.yaml
+├── entrega-pipeline.yaml
+├── jenkins-agent-rbac.yaml
+├── pipeline-jenkins.log
+├── evidencias/
+├── src/
+├── test/
+├── package.json
+├── pnpm-lock.yaml
+└── README.md
 ```
 
-## Compile and run the project
+### Archivos relevantes
+
+| Archivo                   | Descripción                                                |
+| ------------------------- | ---------------------------------------------------------- |
+| `Dockerfile`              | Construcción multietapa de la aplicación NestJS            |
+| `.dockerignore`           | Exclusión de archivos innecesarios durante la construcción |
+| `entrega.yaml`            | Manifiesto completo para despliegue manual                 |
+| `entrega-pipeline.yaml`   | Manifiesto utilizado por Jenkins sin recrear el namespace  |
+| `agent.yaml`              | Plantilla del agente Kubernetes efímero de Jenkins         |
+| `jenkins-agent-rbac.yaml` | Permisos limitados para el agente Jenkins                  |
+| `Jenkinsfile`             | Pipeline CI/CD                                             |
+| `pipeline-jenkins.log`    | Log de una ejecución exitosa                               |
+| `evidencias/`             | Archivos de comprobación del laboratorio                   |
+
+---
+
+## Instalar dependencias localmente
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+npx --yes pnpm@11.0.9 install --frozen-lockfile
 ```
 
-## Run tests
+---
+
+## Ejecutar pruebas localmente
+
+### Pruebas unitarias
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+npx --yes pnpm@11.0.9 run test
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Pruebas end-to-end
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+npx --yes pnpm@11.0.9 run test:e2e
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Compilar la aplicación
 
-## Resources
+```bash
+npx --yes pnpm@11.0.9 run build
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Construir manualmente la imagen Docker
 
-## Support
+```bash
+docker build -t laboratorio3-carlos-vera:local .
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Verificar la imagen:
 
-## Stay in touch
+```bash
+docker image ls laboratorio3-carlos-vera
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Ejecutar un contenedor local:
 
-## License
+```bash
+docker run --rm \
+  --name laboratorio3-carlos-vera-test \
+  -p 3000:3000 \
+  -e AMBIENTE=desarrollo-docker \
+  -e API_KEY=clave-docker-prueba \
+  laboratorio3-carlos-vera:local
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Probar la aplicación:
+
+```bash
+curl http://localhost:3000/
+curl http://localhost:3000/lab
+```
+
+---
+
+## Publicación manual en Docker Hub
+
+Etiquetar la imagen:
+
+```bash
+docker tag \
+  laboratorio3-carlos-vera:local \
+  cverdiaz/tarea-final:carlos-vera
+```
+
+Publicar la imagen:
+
+```bash
+docker push cverdiaz/tarea-final:carlos-vera
+```
+
+---
+
+## Publicación manual en GitHub Container Registry
+
+Etiquetar la imagen:
+
+```bash
+docker tag \
+  laboratorio3-carlos-vera:local \
+  ghcr.io/cverdiaz/tarea-final:carlos-vera
+```
+
+Publicar la imagen:
+
+```bash
+docker push ghcr.io/cverdiaz/tarea-final:carlos-vera
+```
+
+---
+
+## Despliegue manual en Kubernetes
+
+Aplicar el manifiesto completo:
+
+```bash
+kubectl apply -f entrega.yaml
+```
+
+Esperar el despliegue:
+
+```bash
+kubectl rollout status \
+  deployment/app-carlos-vera \
+  -n ns-carlos-vera \
+  --timeout=180s
+```
+
+Consultar los recursos:
+
+```bash
+kubectl get pods -n ns-carlos-vera
+kubectl get deployment -n ns-carlos-vera
+kubectl get svc -n ns-carlos-vera
+```
+
+---
+
+## Probar la aplicación desplegada
+
+Iniciar un port-forward:
+
+```bash
+kubectl port-forward \
+  svc/svc-carlos-vera \
+  8080:80 \
+  -n ns-carlos-vera
+```
+
+Desde otra terminal:
+
+```bash
+curl http://localhost:8080/
+curl http://localhost:8080/lab
+```
+
+Respuesta esperada del endpoint principal:
+
+```text
+Hello World! - CI/CD actualizado
+```
+
+Respuesta esperada de `/lab`:
+
+```json
+{
+  "AMBIENTE": "kubernetes-local",
+  "API_KEY": "api-key-laboratorio3-carlos-vera"
+}
+```
+
+La clave utilizada es ficticia y se incluye solamente con fines demostrativos.
+
+---
+
+## Pipeline Jenkins
+
+El pipeline está definido en:
+
+```text
+Jenkinsfile
+```
+
+y utiliza el agente Kubernetes efímero configurado en:
+
+```text
+agent.yaml
+```
+
+### Etapas del pipeline
+
+| Stage     | Descripción                                        |
+| --------- | -------------------------------------------------- |
+| `install` | Instala pnpm y las dependencias del proyecto       |
+| `test`    | Ejecuta pruebas unitarias y end-to-end             |
+| `build`   | Compila la aplicación NestJS                       |
+| `push`    | Construye y publica la imagen en Docker Hub y GHCR |
+| `deploy`  | Aplica los manifiestos y reinicia el Deployment    |
+
+### Versionamiento automático
+
+El pipeline utiliza la variable global de Jenkins:
+
+```text
+BUILD_NUMBER
+```
+
+para generar tags dinámicos con el formato:
+
+```text
+3.0.<BUILD_NUMBER>
+```
+
+Ejemplo para la ejecución número 10:
+
+```text
+docker.io/cverdiaz/tarea-final:3.0.10
+ghcr.io/cverdiaz/tarea-final:3.0.10
+```
+
+Además, cada ejecución actualiza el tag estable:
+
+```text
+carlos-vera
+```
+
+### Registros utilizados
+
+```text
+Docker Hub:
+docker.io/cverdiaz/tarea-final
+
+GitHub Container Registry:
+ghcr.io/cverdiaz/tarea-final
+```
+
+---
+
+## Credenciales requeridas en Jenkins
+
+Las credenciales se administran desde Jenkins y no se incluyen directamente en el repositorio.
+
+| ID de credencial        | Uso                                                  |
+| ----------------------- | ---------------------------------------------------- |
+| `dockerhub-credentials` | Publicación de imágenes en Docker Hub                |
+| `ghcr-credentials`      | Publicación de imágenes en GitHub Container Registry |
+
+No se almacenan contraseñas ni tokens dentro del `Jenkinsfile`.
+
+---
+
+## Agente Kubernetes de Jenkins
+
+El agente temporal incluye tres contenedores principales:
+
+| Contenedor | Función                                            |
+| ---------- | -------------------------------------------------- |
+| `node`     | Instalar dependencias, ejecutar pruebas y compilar |
+| `buildkit` | Construir y publicar la imagen                     |
+| `kubectl`  | Desplegar y verificar recursos Kubernetes          |
+
+BuildKit se ejecuta en modo privilegiado únicamente dentro del entorno local de laboratorio con Minikube.
+
+Para un entorno productivo se recomienda evaluar una estrategia con aislamiento reforzado y permisos ajustados al entorno real.
+
+---
+
+## Seguridad y permisos RBAC
+
+El pipeline utiliza la cuenta de servicio:
+
+```text
+jenkins-lab3-agent
+```
+
+Esta cuenta puede administrar solamente los recursos necesarios dentro del namespace:
+
+```text
+ns-carlos-vera
+```
+
+No dispone de permisos administrativos sobre el clúster completo.
+
+El manifiesto:
+
+```text
+entrega-pipeline.yaml
+```
+
+excluye la creación del namespace para que Jenkins respete el principio de mínimo privilegio.
+
+---
+
+## Comandos de evidencia
+
+```bash
+kubectl cluster-info
+kubectl get nodes
+kubectl get pods -n ns-carlos-vera
+kubectl get deployment -n ns-carlos-vera
+kubectl get svc -n ns-carlos-vera
+kubectl logs deployment/app-carlos-vera -n ns-carlos-vera
+kubectl exec deployment/app-carlos-vera -n ns-carlos-vera -- printenv
+kubectl get configmap config-carlos-vera -n ns-carlos-vera
+kubectl get secret secret-carlos-vera -n ns-carlos-vera
+```
+
+---
+
+## Evidencias adjuntas
+
+La carpeta:
+
+```text
+evidencias/
+```
+
+contiene archivos de texto con:
+
+* Información del clúster.
+* Nodo Minikube.
+* Namespace del laboratorio.
+* Pods.
+* Deployment.
+* Service.
+* Logs de la aplicación.
+* Variables de entorno.
+* ConfigMap.
+* Secret.
+* Port-forward.
+* Respuestas de curl.
+* Log exitoso del pipeline Jenkins.
+* Evidencia de la actualización automática mediante CI/CD.
+
+---
+
+## Repositorio
+
+```text
+https://github.com/cverdiaz/laboratorio3-carlos-vera
+```

@@ -1,0 +1,12 @@
+============================================================
+LABORATORIO 3 - VALIDACIÓN POSTERIOR A ACTUALIZACIÓN CI/CD
+Fecha: 2026-06-07T18:58:42-03:00
+============================================================
+
+===== ENDPOINT PRINCIPAL ACTUALIZADO =====
+Comando: curl http://localhost:8080/
+Hello World! - CI/CD actualizado
+
+===== ENDPOINT /lab =====
+Comando: curl http://localhost:8080/lab
+{"AMBIENTE":"kubernetes-local","API_KEY":"api-key-laboratorio3-carlos-vera"}
