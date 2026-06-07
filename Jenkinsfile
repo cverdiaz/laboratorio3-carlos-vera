@@ -109,7 +109,7 @@ JSON
                               --frontend dockerfile.v0 \
                               --local context=. \
                               --local dockerfile=. \
-                              --output type=image,name=docker.io/${IMAGE_NAME}:carlos-vera,name=docker.io/${IMAGE_NAME}:${VERSION_TAG},name=${GHCR_IMAGE_NAME}:carlos-vera,name=${GHCR_IMAGE_NAME}:${VERSION_TAG},push=true
+                              --output "type=image,\"name=docker.io/${IMAGE_NAME}:carlos-vera,docker.io/${IMAGE_NAME}:${VERSION_TAG},${GHCR_IMAGE_NAME}:carlos-vera,${GHCR_IMAGE_NAME}:${VERSION_TAG}\",push=true"
 
                         '''
                     }
